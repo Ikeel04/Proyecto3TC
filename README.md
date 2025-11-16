@@ -6,6 +6,9 @@ Este proyecto implementa un simulador de Máquina de Turing de **una cinta**, qu
 - Muestra un listado de **descripciones instantáneas (IDs)** paso a paso.
 - Indica si la cadena es **aceptada** o **rechazada** al finalizar la ejecución.
 
+## Video
+https://youtu.be/_5HLeMFOgPw 
+
 ## Requisitos
 
 - Python 3.10+ 
