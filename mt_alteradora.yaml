@@ -1,0 +1,158 @@
+mt:
+  name: "Alteradora reversa"
+  states: [q0, q1, q2a, q2b, q3a, q3b, q3_back, q4, q5, q_accept]
+  input_alphabet: [a, b]
+  tape_alphabet: [a, b, X, Y, "#", B]
+  initial_state: q0
+  accept_states: [q_accept]
+  blank_symbol: B
+
+  transitions:
+    # q0: recorrer toda la entrada hacia la derecha y poner un '#' al final
+    - state: q0
+      read: [a, b]
+      write: [a, b]
+      move: R
+      next: q0
+
+    - state: q0
+      read: B
+      write: "#"
+      move: L
+      next: q1
+
+    # q1: bucle principal; buscar desde la derecha una letra sin marcar
+    #     si encontramos X/Y: seguir a la izquierda
+    - state: q1
+      read: [X, Y]
+      write: [X, Y]
+      move: L
+      next: q1
+
+    # Encontramos 'a' sin marcar: marcarla como X y pasar a buscar '#'
+    - state: q1
+      read: a
+      write: X
+      move: R
+      next: q2a
+
+    # Encontramos 'b' sin marcar: marcarla como Y
+    - state: q1
+      read: b
+      write: Y
+      move: R
+      next: q2b
+
+    # Si llegamos a un blanco a la izquierda, ya no quedan letras sin marcar
+    - state: q1
+      read: B
+      write: B
+      move: R
+      next: q4
+
+    # q2a: mover a la derecha hasta encontrar '#', luego ir a zona de salida (derecha de '#')
+    - state: q2a
+      read: [a, b, X, Y]
+      write: [a, b, X, Y]
+      move: R
+      next: q2a
+
+    - state: q2a
+      read: "#"
+      write: "#"
+      move: R
+      next: q3a
+
+    # q2b: igual que q2a, pero para 'b'
+    - state: q2b
+      read: [a, b, X, Y]
+      write: [a, b, X, Y]
+      move: R
+      next: q2b
+
+    - state: q2b
+      read: "#"
+      write: "#"
+      move: R
+      next: q3b
+
+    # q3a: ir al final de la salida (primer B) y escribir 'a'
+    - state: q3a
+      read: [a, b]
+      write: [a, b]
+      move: R
+      next: q3a
+
+    - state: q3a
+      read: B
+      write: a
+      move: L
+      next: q3_back
+
+    # q3b: igual pero escribiendo 'b'
+    - state: q3b
+      read: [a, b]
+      write: [a, b]
+      move: R
+      next: q3b
+
+    - state: q3b
+      read: B
+      write: b
+      move: L
+      next: q3_back
+
+    # q3_back: regresar hacia la izquierda hasta '#' y luego volver a q1
+    - state: q3_back
+      read: [a, b]
+      write: [a, b]
+      move: L
+      next: q3_back
+
+    - state: q3_back
+      read: "#"
+      write: "#"
+      move: L
+      next: q1
+
+    # q4: limpieza al final (cuando ya no hay letras sin marcar a la izquierda)
+    #     convertir X/Y en B y borrar '#', quedándonos solo con la cadena reversa
+    - state: q4
+      read: B
+      write: B
+      move: R
+      next: q4
+
+    - state: q4
+      read: X
+      write: B
+      move: R
+      next: q4
+
+    - state: q4
+      read: Y
+      write: B
+      move: R
+      next: q4
+
+    - state: q4
+      read: "#"
+      write: B
+      move: R
+      next: q5
+
+    # q5: estamos en el primer símbolo de la salida (la cadena reversa)
+    #     pasamos a estado de aceptación
+    - state: q5
+      read: [a, b]
+      write: [a, b]
+      move: S
+      next: q_accept
+
+    # q_accept: estado de aceptación, sin transiciones
+
+  inputs:
+    - "aaaab"
+    - "abbba"
+    - "abaab"
+    - "babba"

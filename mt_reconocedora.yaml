@@ -1,0 +1,78 @@
+mt:
+  name: "Reconocedora anbn"
+  states: [q0, q1, q2, q_accept, q_reject]
+  input_alphabet: [a, b]
+  tape_alphabet: [a, b, X, Y, B]
+  initial_state: q0
+  accept_states: [q_accept]
+  blank_symbol: B
+
+  transitions:
+    # q0: buscar la primera 'a' sin marcar; si solo hay X/Y, pasar; si vemos 'b' primero, rechazar.
+    - state: q0
+      read: [X, Y]
+      write: [X, Y]
+      move: R
+      next: q0
+
+    - state: q0
+      read: a
+      write: X
+      move: R
+      next: q1
+
+    - state: q0
+      read: b
+      write: b
+      move: S
+      next: q_reject
+
+    # Si ya solo quedan X/Y y luego blanco, aceptar
+    - state: q0
+      read: B
+      write: B
+      move: S
+      next: q_accept
+
+    # q1: desde la 'a' marcada, buscar un 'b' sin marcar a la derecha
+    - state: q1
+      read: [a, X, Y]
+      write: [a, X, Y]
+      move: R
+      next: q1
+
+    - state: q1
+      read: b
+      write: Y
+      move: L
+      next: q2
+
+    # Si llegamos a blanco sin encontrar 'b', rechazar (faltan b's)
+    - state: q1
+      read: B
+      write: B
+      move: S
+      next: q_reject
+
+    # q2: regresar a la izquierda hasta el blanco inicial y volver a q0
+    - state: q2
+      read: [a, b, X, Y]
+      write: [a, b, X, Y]
+      move: L
+      next: q2
+
+    - state: q2
+      read: B
+      write: B
+      move: R
+      next: q0
+
+    # Estados de parada (sin transiciones definidas)
+    # q_accept: acepta
+    # q_reject: rechaza
+
+  inputs:
+    - "aaabbb"      # ACEPTADA (3 a, 3 b)
+    - "aaaaabbbbb"  # ACEPTADA (5 a, 5 b)
+    - "aabbb"       # RECHAZADA (2 a, 3 b)
+    - "aaabb"       # RECHAZADA (3 a, 2 b)
